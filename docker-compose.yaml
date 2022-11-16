@@ -1,0 +1,89 @@
+version: "3.9"
+services:
+  lb:
+    container_name: lb
+    image: haproxy:latest
+    volumes:
+      - "./conf/lb.conf:/usr/local/etc/haproxy/haproxy.cfg"
+    ports:
+      - "13306:3306"
+      - "23306:3307"
+      - "8000:8000"
+    depends_on:
+      - w101
+      - r201
+      - r202
+      - r203
+
+  w101:
+    container_name: w101
+    image: mysql:latest
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: "0a43fdd132ad"
+      MYSQL_DATABASE: "mydb"
+      MYSQL_USER: "replica_user"
+      MYSQL_PASSWORD: "4fa288f676ef"
+    volumes:
+      - "./conf/w101.cnf:/etc/mysql/conf.d/mysql-conf.cnf"
+      - "./conf/init/w101:/docker-entrypoint-initdb.d"
+      - "./data/w101:/var/lib/mysql"
+
+  r201:
+    container_name: r201
+    image: mysql:latest
+    cap_add:
+    - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: "0a43fdd132ad"
+      MYSQL_DATABASE: "mydb"
+      MYSQL_USER: "replica_user"
+      MYSQL_PASSWORD: "4fa288f676ef"
+    volumes:
+      - "./conf/r201.cnf:/etc/mysql/conf.d/mysql-conf.cnf"
+      - "./data/r201:/var/lib/mysql"
+    depends_on:
+      - w101
+
+  r202:
+    container_name: r202
+    image: mysql:latest
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: "0a43fdd132ad"
+      MYSQL_DATABASE: "mydb"
+      MYSQL_USER: "replica_user"
+      MYSQL_PASSWORD: "4fa288f676ef"
+    volumes:
+      - "./conf/r202.cnf:/etc/mysql/conf.d/mysql-conf.cnf"
+      - "./data/r202:/var/lib/mysql"
+    depends_on:
+      - r201
+
+
+  r203:
+    container_name: r203
+    image: mysql:latest
+    cap_add:
+      - SYS_NICE
+    environment:
+      MYSQL_ROOT_PASSWORD: "0a43fdd132ad"
+      MYSQL_DATABASE: "mydb"
+      MYSQL_USER: "replica_user"
+      MYSQL_PASSWORD: "4fa288f676ef"
+    volumes:
+      - "./conf/r203.cnf:/etc/mysql/conf.d/mysql-conf.cnf"
+      - "./data/r203:/var/lib/mysql"
+    depends_on:
+      - r202
+
+
+
+
+
+
+
+
+
